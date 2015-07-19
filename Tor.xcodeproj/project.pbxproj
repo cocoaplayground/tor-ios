@@ -33,6 +33,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		D08B6A8D1B5C5D4D005D871D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D0D01CDC19127C53000002E7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D0616A671916943F00B77FAE;
+			remoteInfo = tor;
+		};
 		D0D1FAD41B5C35F500EC7256 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D0D01CDC19127C53000002E7 /* Project object */;
@@ -331,6 +338,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D08B6A8E1B5C5D4D005D871D /* PBXTargetDependency */,
 			);
 			name = Extension;
 			productName = TorTunnel;
@@ -424,6 +432,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		D08B6A8E1B5C5D4D005D871D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D0616A671916943F00B77FAE /* tor */;
+			targetProxy = D08B6A8D1B5C5D4D005D871D /* PBXContainerItemProxy */;
+		};
 		D0D1FAD51B5C35F500EC7256 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D0D1FACB1B5C35F500EC7256 /* Extension */;
