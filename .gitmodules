@@ -1,0 +1,10 @@
+[submodule "Extension/libevent"]
+	path = Extension/libevent
+	url = https://github.com/libevent/libevent.git
+    ignore = dirty
+[submodule "Extension/tor"]
+	path = Extension/tor
+	url = https://git.torproject.org/tor.git
+[submodule "Extension/openssl"]
+	path = Extension/openssl
+	url = git://git.openssl.org/openssl.git
