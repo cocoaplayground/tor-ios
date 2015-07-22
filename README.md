@@ -1,6 +1,6 @@
 # Tor for iOS 9+
 
-**What it is:** A system wide, App Store safe, Tor proxy for iOS 9 and later. **It doesn't work yet.**
+**What it is:** A system wide, App Store safe, Tor proxy for iOS 9 and later. **It doesn't work yet. It is not affiliated with the [Tor Project](https://www.torproject.org/) in any way.** 
 
 **What works:**
 - Tor, libevent, and OpenSSL compile the latest versions efficiently within Xcode, using automake.
