@@ -20,10 +20,10 @@
 }
 
 - (instancetype)initWithArguments:(NSArray *)arguments {
-    NSParameterAssert(arguments);
     self = [super init];
     if (self) {
         _arguments = arguments;
+        self.name = @"Tor";
     }
     return self;
 }
@@ -32,7 +32,7 @@
     int argc = (int)_arguments.count;
     char *argv[argc + 2];
     argv[0] = "tor";
-    for (NSUInteger idx = 1; idx < argc + 1; idx++)
+    for (NSUInteger idx = 1; idx < argc; idx++)
         argv[idx] = (char *)[_arguments[idx] UTF8String];
     argv[argc] = NULL;
     

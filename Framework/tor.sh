@@ -55,10 +55,11 @@ do
     mv orconfig.h "${CONFIGURATION_TEMP_DIR}/orconfig.h"
     mv micro-revision.i "${CONFIGURATION_TEMP_DIR}/micro-revision.i"
     make distclean
-    mv "${CONFIGURATION_TEMP_DIR}/orconfig.h" "${SRCROOT}/Extension/orconfig.h"
-    mv "${CONFIGURATION_TEMP_DIR}/micro-revision.i" "${SRCROOT}/Extension/micro-revision.i"
+    mv "${CONFIGURATION_TEMP_DIR}/orconfig.h" "${SRCROOT}/Framework/orconfig.h"
+    mv "${CONFIGURATION_TEMP_DIR}/micro-revision.i" "${SRCROOT}/Framework/micro-revision.i"
 done
 
+# Combine the built products into a fat binary
 xcrun --sdk $PLATFORM_NAME lipo -create "${BUILT_PRODUCTS_DIR}/libtor."*.a -output "${BUILT_PRODUCTS_DIR}/libtor.a"
 xcrun --sdk $PLATFORM_NAME lipo -create "${BUILT_PRODUCTS_DIR}/libor."*.a -output "${BUILT_PRODUCTS_DIR}/libor.a"
 xcrun --sdk $PLATFORM_NAME lipo -create "${BUILT_PRODUCTS_DIR}/libor-event."*.a -output "${BUILT_PRODUCTS_DIR}/libor-event.a"

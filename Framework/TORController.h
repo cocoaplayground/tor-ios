@@ -12,7 +12,7 @@
 
 + (instancetype)sharedController;
 
-@property (readonly, nonatomic) NSInteger socksPort;
+@property (readonly, nonatomic) NSString *socksSocketPath;
 
 @property (readonly, nonatomic) BOOL circuitEstablished;
 

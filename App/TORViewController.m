@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Kramer Software Productions, LLC. All rights reserved.
 //
 
+#import <Tor/Tor.h>
+
 #import "TORViewController.h"
 
 @implementation TORViewController
@@ -23,6 +25,8 @@
     NSDictionary *views = NSDictionaryOfVariableBindings(button);
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[button]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[button]|" options:0 metrics:nil views:views]];
+    
+    [TORController sharedController];
 }
 
 - (void)toggle {

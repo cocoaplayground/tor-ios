@@ -35,6 +35,20 @@
                ReferencedContainer = "container:Tor.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "YES"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D08F64DA1B65E34100452A58"
+               BuildableName = "FrameworkTests.xctest"
+               BlueprintName = "FrameworkTests"
+               ReferencedContainer = "container:Tor.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -43,13 +57,23 @@
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "D08F64DA1B65E34100452A58"
+               BuildableName = "FrameworkTests.xctest"
+               BlueprintName = "FrameworkTests"
+               ReferencedContainer = "container:Tor.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D0D1FACB1B5C35F500EC7256"
-            BuildableName = "TorTunnel.appex"
-            BlueprintName = "Extension"
+            BlueprintIdentifier = "D0D01CE319127C53000002E7"
+            BuildableName = "Tor.app"
+            BlueprintName = "Tor"
             ReferencedContainer = "container:Tor.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
