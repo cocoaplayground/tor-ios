@@ -25,6 +25,13 @@ static TORThread *_thread = nil;
     return [self initWithArguments:nil];
 }
 
+- (instancetype)initWithDataDirectory:(NSString *)dataDirectory socksSocketPath:(NSString *)socksSocketPath controlSocketPath:(NSString *)controlSocketPath arguments:(NSArray *)arguments {
+    return [self initWithArguments:[@[@"--ignore-missing-torrc",
+                                      @"--DataDirectory", @(dataDirectory.fileSystemRepresentation),
+                                      @"--SocksPort", [NSString stringWithFormat:@"unix:%s", socksSocketPath.fileSystemRepresentation],
+                                      @"--ControlSocket", @(controlSocketPath.fileSystemRepresentation)] arrayByAddingObjectsFromArray:arguments]];
+}
+
 - (instancetype)initWithArguments:(NSArray *)arguments {
     NSAssert(_thread == nil, @"There can only be one TORThread per process");
     self = [super init];

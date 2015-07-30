@@ -12,3 +12,4 @@ FOUNDATION_EXPORT double TorVersionNumber;
 FOUNDATION_EXPORT const unsigned char TorVersionString[];
 
 #import <Tor/TORController.h>
+#import <Tor/TORThread.h>

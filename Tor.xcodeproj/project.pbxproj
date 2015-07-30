@@ -26,7 +26,7 @@
 		D08F64E91B65E34100452A58 /* Tor.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D08F64D11B65E34100452A58 /* Tor.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D08F64F21B65E39800452A58 /* TORController.h in Headers */ = {isa = PBXBuildFile; fileRef = D08F64C81B65E2EB00452A58 /* TORController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08F64F31B65E39800452A58 /* TORController.m in Sources */ = {isa = PBXBuildFile; fileRef = D08F64C91B65E2EB00452A58 /* TORController.m */; };
-		D08F64F41B65E39800452A58 /* TORThread.h in Headers */ = {isa = PBXBuildFile; fileRef = D08F64CA1B65E2EB00452A58 /* TORThread.h */; };
+		D08F64F41B65E39800452A58 /* TORThread.h in Headers */ = {isa = PBXBuildFile; fileRef = D08F64CA1B65E2EB00452A58 /* TORThread.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08F64F51B65E39800452A58 /* TORThread.m in Sources */ = {isa = PBXBuildFile; fileRef = D08F64CB1B65E2EB00452A58 /* TORThread.m */; };
 		D0D01CF419127C54000002E7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D0D01CF319127C54000002E7 /* main.m */; };
 		D0D01CF819127C54000002E7 /* TORAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D0D01CF719127C54000002E7 /* TORAppDelegate.m */; };

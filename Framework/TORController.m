@@ -24,11 +24,8 @@ static NSString * const TORControllerDataReplyLineSeparator = @"+";
 static NSString * const TORControllerEndReplyLineSeparator = @" ";
 
 @implementation TORController {
-    NSString *_controlSocketPath;
-    NSString *_socksSocketPath;
-    TORThread *_thread;
-    
-    NSString *_dataDirectory;
+    NSString *_path;
+    in_port_t _port;
     dispatch_io_t _channel;
     NSMutableArray *_blocks;
 }
@@ -42,24 +39,28 @@ static NSString * const TORControllerEndReplyLineSeparator = @" ";
     return controlQueue;
 }
 
-- (instancetype)init {
-    return [self initWithDataDirectory:nil];
+- (instancetype)initWithControlSocketPath:(NSString *)path {
+    self = [self init];
+    if (self) {
+        _path = [path copy];
+    }
+    return self;
 }
 
-- (instancetype)initWithDataDirectory:(NSString *)dataDirectory {
+- (instancetype)initWithControlSocketPort:(in_port_t)port {
+    self = [self init];
+    if (self) {
+        _port = port;
+    }
+    return self;
+}
+
+- (instancetype)init {
     self = [super init];
     if (self) {
         _blocks = [NSMutableArray new];
-        _dataDirectory = dataDirectory;
-        _controlSocketPath = [_dataDirectory stringByAppendingPathComponent:@"control"];
-        _socksSocketPath = [_dataDirectory stringByAppendingPathComponent:@"socks"];
-
-        _thread = [[TORThread alloc] initWithArguments:@[@"--ignore-missing-torrc",
-                                                         @"--DataDirectory", @([_dataDirectory fileSystemRepresentation]),
-                                                         @"--SocksPort", [NSString stringWithFormat:@"unix:%s", _socksSocketPath.fileSystemRepresentation],
-                                                         @"--ControlSocket", @([_controlSocketPath fileSystemRepresentation]),
-                                                         @"--CookieAuthentication", @"1"]];
-        [_thread start];
+        
+        [self connect];
     }
     return self;
 }
@@ -67,11 +68,6 @@ static NSString * const TORControllerEndReplyLineSeparator = @" ";
 - (void)dealloc {
     if (_channel)
         dispatch_io_close(_channel, DISPATCH_IO_STOP);
-}
-
-- (NSData *)cookie {
-    NSString *cookiePath = [_dataDirectory stringByAppendingPathComponent:@"control_auth_cookie"];
-    return [NSData dataWithContentsOfFile:cookiePath];
 }
 
 - (BOOL)isConnected {
@@ -82,16 +78,31 @@ static NSString * const TORControllerEndReplyLineSeparator = @" ";
     if (_channel)
         return NO;
     
-    struct sockaddr_un control_addr = {};
-    control_addr.sun_family = AF_UNIX;
-    strncpy(control_addr.sun_path, _controlSocketPath.fileSystemRepresentation, sizeof(control_addr.sun_path) - 1);
-    control_addr.sun_len = SUN_LEN(&control_addr);
+    int sock = -1;
     
-    int sock = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (_path) {
+        struct sockaddr_un control_addr = {};
+        control_addr.sun_family = AF_UNIX;
+        strncpy(control_addr.sun_path, _path.fileSystemRepresentation, sizeof(control_addr.sun_path) - 1);
+        control_addr.sun_len = SUN_LEN(&control_addr);
+        
+        sock = socket(AF_UNIX, SOCK_STREAM, 0);
+        
+        if (connect(sock, (struct sockaddr *)&control_addr, control_addr.sun_len) == -1)
+            return NO;
+    } else if (_port) {
+        struct sockaddr_in control_addr = {};
+        control_addr.sin_family = AF_INET;
+        control_addr.sin_port = htons(_port);
+        control_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+        control_addr.sin_len = (__uint8_t)sizeof(control_addr);
+        
+        sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        
+        if (connect(sock, (struct sockaddr *)&control_addr, control_addr.sin_len) == -1)
+            return NO;
+    }
     
-    if (connect(sock, (struct sockaddr *)&control_addr, control_addr.sun_len) == -1)
-        return NO;
-
     __weak TORController *weakSelf = self;
     _channel = dispatch_io_create(DISPATCH_IO_STREAM, sock, [[self class] controlQueue], ^(int error) {
         close(sock);
@@ -176,32 +187,6 @@ static NSString * const TORControllerEndReplyLineSeparator = @" ";
             }
         }
     });
-
-    [self authenticateWithData:self.cookie completion:nil];
-    [self sendCommand:@"SETEVENTS" arguments:@[@"CIRC",
-                                               @"STREAM",
-                                               @"ORCONN",
-                                               @"BW",
-                                               @"NEWDESC",
-                                               @"ADDRMAP",
-                                               @"AUTHDIR_NEWDESCS",
-                                               @"DESCCHANGED",
-                                               @"STATUS_GENERAL",
-                                               @"STATUS_CLIENT",
-                                               @"STATUS_SERVER",
-                                               @"GUARD",
-                                               @"NS",
-                                               @"STREAM_BW",
-                                               @"CLIENTS_SEEN",
-                                               @"NEWCONSENSUS",
-                                               @"BUILDTIMEOUT_SET",
-                                               @"SIGNAL",
-                                               @"CONF_CHANGED",
-                                               @"CIRC_MINOR",
-                                               @"TRANSPORT_LAUNCHED",
-                                               @"CELL_STATS",
-                                               @"TB_EMPTY",
-                                               @"HS_DESC"] data:nil observer:nil];
     
     return YES;
 }
@@ -238,7 +223,7 @@ static NSString * const TORControllerEndReplyLineSeparator = @" ";
         NSArray *components = [replyString componentsSeparatedByString:@" "];
         if (components.count < 3)
             return NO;
-            
+        
         NSMutableDictionary *arguments = nil;
         if (components.count > 3) {
             arguments = [NSMutableDictionary new];
@@ -317,4 +302,3 @@ static NSString * const TORControllerEndReplyLineSeparator = @" ";
 }
 
 @end
-
