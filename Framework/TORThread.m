@@ -11,8 +11,14 @@
 
 #import "TORThread.h"
 
+static TORThread *_thread = nil;
+
 @implementation TORThread {
     NSArray *_arguments;
+}
+
++ (instancetype)torThread {
+    return _thread;
 }
 
 - (instancetype)init {
@@ -20,9 +26,12 @@
 }
 
 - (instancetype)initWithArguments:(NSArray *)arguments {
+    NSAssert(_thread == nil, @"There can only be one TORThread per process");
     self = [super init];
     if (self) {
+        _thread = self;
         _arguments = arguments;
+        
         self.name = @"Tor";
     }
     return self;

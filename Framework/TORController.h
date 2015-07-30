@@ -10,10 +10,15 @@
 
 @interface TORController : NSObject
 
-+ (instancetype)sharedController;
+@property (nonatomic, readonly, getter=isConnected) BOOL connected;
 
-@property (readonly, nonatomic) NSString *socksSocketPath;
+- (instancetype)initWithDataDirectory:(NSString *)dataDirectory NS_DESIGNATED_INITIALIZER;
 
-@property (readonly, nonatomic) BOOL circuitEstablished;
+- (BOOL)connect;
+
+- (id)addObserverForCircuitEstablished:(void (^)(BOOL established))block;
+- (id)addObserverForStatusEvents:(BOOL (^)(NSString *type, NSString *severity, NSString *action, NSDictionary *arguments))block;
+
+- (void)removeObserver:(id)observer;
 
 @end

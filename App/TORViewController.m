@@ -26,7 +26,14 @@
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[button]|" options:0 metrics:nil views:views]];
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[button]|" options:0 metrics:nil views:views]];
     
-    [TORController sharedController];
+    static TORController *controller = nil;
+    controller = [[TORController alloc] initWithDataDirectory:NSTemporaryDirectory()];
+    [controller addObserverForCircuitEstablished:^(BOOL established) {
+        NSLog(@"CONNECTION ESTABLISHED? %i", established);
+    }];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [controller connect];
+    });
 }
 
 - (void)toggle {

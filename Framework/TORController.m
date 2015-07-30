@@ -17,57 +17,49 @@ const char tor_git_revision[] =
 #endif
 "";
 
+typedef BOOL (^TORObserverBlock)(NSUInteger code, NSData *data, BOOL *stop);
+
 static NSString * const TORControllerMidReplyLineSeparator = @"-";
 static NSString * const TORControllerDataReplyLineSeparator = @"+";
 static NSString * const TORControllerEndReplyLineSeparator = @" ";
 
-@interface TORController ()
-
-@property (readwrite, nonatomic) BOOL circuitEstablished;
-
-@end
-
-static TORController *sharedController = nil;
-
 @implementation TORController {
-    TORThread *_thread;
-    NSString *_dataDirectory;
     NSString *_controlSocketPath;
+    NSString *_socksSocketPath;
+    TORThread *_thread;
+    
+    NSString *_dataDirectory;
     dispatch_io_t _channel;
+    NSMutableArray *_blocks;
 }
 
-+ (instancetype)sharedController {
++ (dispatch_queue_t)controlQueue {
+    static dispatch_queue_t controlQueue = NULL;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        sharedController = [[self alloc] init];
+        controlQueue = dispatch_queue_create("org.torproject.ios.control", DISPATCH_QUEUE_SERIAL);
     });
-    return sharedController;
-}
-
-+ (dispatch_queue_t)eventQueue {
-    static dispatch_queue_t eventQueue = NULL;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        eventQueue = dispatch_queue_create("org.torproject.ios.events", DISPATCH_QUEUE_SERIAL);
-    });
-    return eventQueue;
+    return controlQueue;
 }
 
 - (instancetype)init {
-    NSAssert(sharedController == nil, @"There can only be one TORController per process");
+    return [self initWithDataDirectory:nil];
+}
+
+- (instancetype)initWithDataDirectory:(NSString *)dataDirectory {
     self = [super init];
     if (self) {
-        _dataDirectory = NSTemporaryDirectory();
+        _blocks = [NSMutableArray new];
+        _dataDirectory = dataDirectory;
         _controlSocketPath = [_dataDirectory stringByAppendingPathComponent:@"control"];
         _socksSocketPath = [_dataDirectory stringByAppendingPathComponent:@"socks"];
-        
+
         _thread = [[TORThread alloc] initWithArguments:@[@"--ignore-missing-torrc",
                                                          @"--DataDirectory", @([_dataDirectory fileSystemRepresentation]),
                                                          @"--SocksPort", [NSString stringWithFormat:@"unix:%s", _socksSocketPath.fileSystemRepresentation],
                                                          @"--ControlSocket", @([_controlSocketPath fileSystemRepresentation]),
                                                          @"--CookieAuthentication", @"1"]];
         [_thread start];
-        [self performSelector:@selector(connect) withObject:nil afterDelay:0.1f];
     }
     return self;
 }
@@ -77,21 +69,18 @@ static TORController *sharedController = nil;
         dispatch_io_close(_channel, DISPATCH_IO_STOP);
 }
 
-- (NSString *)cookie {
+- (NSData *)cookie {
     NSString *cookiePath = [_dataDirectory stringByAppendingPathComponent:@"control_auth_cookie"];
-    NSData *cookie = [NSData dataWithContentsOfFile:cookiePath];
-    if (!cookie)
-        return nil;
-    
-    NSMutableString *hex = [NSMutableString new];
-    for (NSUInteger idx = 0; idx < cookie.length; idx++)
-        [hex appendFormat:@"%02x", ((const unsigned char *)cookie.bytes)[idx]];
-    return hex;
+    return [NSData dataWithContentsOfFile:cookiePath];
 }
 
-- (void)connect {
+- (BOOL)isConnected {
+    return (_channel != nil);
+}
+
+- (BOOL)connect {
     if (_channel)
-        return;
+        return NO;
     
     struct sockaddr_un control_addr = {};
     control_addr.sun_family = AF_UNIX;
@@ -101,10 +90,16 @@ static TORController *sharedController = nil;
     int sock = socket(AF_UNIX, SOCK_STREAM, 0);
     
     if (connect(sock, (struct sockaddr *)&control_addr, control_addr.sun_len) == -1)
-        return [self performSelector:@selector(connect) withObject:nil afterDelay:0.1f]; // TODO: Handle permanent failure
+        return NO;
 
-    _channel = dispatch_io_create(DISPATCH_IO_STREAM, sock, [[self class] eventQueue], ^(int error) {
+    __weak TORController *weakSelf = self;
+    _channel = dispatch_io_create(DISPATCH_IO_STREAM, sock, [[self class] controlQueue], ^(int error) {
         close(sock);
+        
+        TORController *strongSelf = weakSelf;
+        if (strongSelf) {
+            strongSelf->_channel = nil;
+        }
     });
     
     NSData *separator = [NSData dataWithBytes:"\x0d\x0a" length:2];
@@ -117,7 +112,7 @@ static TORController *sharedController = nil;
     __block BOOL dataBlock = NO;
     
     dispatch_io_set_low_water(_channel, 1);
-    dispatch_io_read(_channel, 0, SIZE_MAX, [[self class] eventQueue], ^(bool done, dispatch_data_t data, int error) {
+    dispatch_io_read(_channel, 0, SIZE_MAX, [[self class] controlQueue], ^(bool done, dispatch_data_t data, int error) {
         [buffer appendData:(NSData *)data];
         
         NSRange separatorRange = NSMakeRange(NSNotFound, 1);
@@ -162,93 +157,140 @@ static TORController *sharedController = nil;
             }
             
             if ([lineTypeString isEqualToString:TORControllerEndReplyLineSeparator]) {
-                [self recievedReplyWithCode:[statusCodeString integerValue] data:command];
+                NSUInteger statusCode = [statusCodeString integerValue];
+                NSData *commandData = [command copy];
                 command = nil;
+                
+                TORController *strongSelf = weakSelf;
+                if (!strongSelf)
+                    continue;
+                
+                for (TORObserverBlock observer in [strongSelf->_blocks copy]) {
+                    BOOL stop = NO;
+                    BOOL handled = observer(statusCode, commandData, &stop);
+                    if (stop)
+                        [strongSelf->_blocks removeObject:observer];
+                    if (handled)
+                        break;
+                }
             }
         }
     });
 
-    NSString *cookie = self.cookie;
-    if (cookie) {
-        [self sendCommand:@"AUTHENTICATE" arguments:@[cookie] data:nil];
-        
-        [self sendCommand:@"SETEVENTS" arguments:@[@"CIRC",
-                                                   @"STREAM",
-                                                   @"ORCONN",
-                                                   @"BW",
-                                                   @"NEWDESC",
-                                                   @"ADDRMAP",
-                                                   @"AUTHDIR_NEWDESCS",
-                                                   @"DESCCHANGED",
-                                                   @"STATUS_GENERAL",
-                                                   @"STATUS_CLIENT",
-                                                   @"STATUS_SERVER",
-                                                   @"GUARD",
-                                                   @"NS",
-                                                   @"STREAM_BW",
-                                                   @"CLIENTS_SEEN",
-                                                   @"NEWCONSENSUS",
-                                                   @"BUILDTIMEOUT_SET",
-                                                   @"SIGNAL",
-                                                   @"CONF_CHANGED",
-                                                   @"CIRC_MINOR",
-                                                   @"TRANSPORT_LAUNCHED",
-                                                   @"CELL_STATS",
-                                                   @"TB_EMPTY",
-                                                   @"HS_DESC"] data:nil];        
-    }
+    [self authenticateWithData:self.cookie completion:nil];
+    [self sendCommand:@"SETEVENTS" arguments:@[@"CIRC",
+                                               @"STREAM",
+                                               @"ORCONN",
+                                               @"BW",
+                                               @"NEWDESC",
+                                               @"ADDRMAP",
+                                               @"AUTHDIR_NEWDESCS",
+                                               @"DESCCHANGED",
+                                               @"STATUS_GENERAL",
+                                               @"STATUS_CLIENT",
+                                               @"STATUS_SERVER",
+                                               @"GUARD",
+                                               @"NS",
+                                               @"STREAM_BW",
+                                               @"CLIENTS_SEEN",
+                                               @"NEWCONSENSUS",
+                                               @"BUILDTIMEOUT_SET",
+                                               @"SIGNAL",
+                                               @"CONF_CHANGED",
+                                               @"CIRC_MINOR",
+                                               @"TRANSPORT_LAUNCHED",
+                                               @"CELL_STATS",
+                                               @"TB_EMPTY",
+                                               @"HS_DESC"] data:nil observer:nil];
+    
+    return YES;
 }
 
 #pragma mark - Receiving
 
-- (void)receivedStatusEventOfType:(NSString *)type severity:(NSString *)severity action:(NSString *)action arguments:(NSDictionary *)arguments {
-    if ([type isEqualToString:@"STATUS_CLIENT"]) {
-        if ([action isEqualToString:@"CIRCUIT_ESTABLISHED"]) {
-            self.circuitEstablished = YES;
-        } else if ([action isEqualToString:@"CIRCUIT_NOT_ESTABLISHED"]) {
-            self.circuitEstablished = NO;
+- (id)addObserverForCircuitEstablished:(void (^)(BOOL established))block {
+    NSParameterAssert(block);
+    return [self addObserverForStatusEvents:^(NSString *type, NSString *severity, NSString *action, NSDictionary *arguments) {
+        if ([type isEqualToString:@"STATUS_CLIENT"]) {
+            if ([action isEqualToString:@"CIRCUIT_ESTABLISHED"]) {
+                block(YES);
+                return YES;
+            } else if ([action isEqualToString:@"CIRCUIT_NOT_ESTABLISHED"]) {
+                block(NO);
+                return YES;
+            }
         }
-    }
+        
+        return NO;
+    }];
 }
 
-- (void)recievedReplyWithCode:(NSUInteger)code data:(NSData *)data {
-    NSString *replyString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    switch (code) {
-        case 650: {
-            if ([replyString hasPrefix:@"STATUS_"]) {
-                NSArray *components = [replyString componentsSeparatedByString:@" "];
-                if (components.count < 3)
-                    return;
-                
-                NSMutableDictionary *arguments = nil;
-                if (components.count > 3) {
-                    arguments = [NSMutableDictionary new];
-                    for (NSString *argument in [components subarrayWithRange:NSMakeRange(3, components.count - 3)]) {
-                        NSArray *keyValuePair = [argument componentsSeparatedByString:@"="];
-                        if (keyValuePair.count == 2) {
-                            [arguments setObject:keyValuePair[1] forKey:keyValuePair[0]];
-                        }
-                    }
+- (id)addObserverForStatusEvents:(BOOL (^)(NSString *type, NSString *severity, NSString *action, NSDictionary *arguments))block {
+    NSParameterAssert(block);
+    return [self addObserver:^(NSUInteger code, NSData *data, BOOL *stop) {
+        if (code != 650)
+            return NO;
+        
+        NSString *replyString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        if (![replyString hasPrefix:@"STATUS_"])
+            return NO;
+        
+        NSArray *components = [replyString componentsSeparatedByString:@" "];
+        if (components.count < 3)
+            return NO;
+            
+        NSMutableDictionary *arguments = nil;
+        if (components.count > 3) {
+            arguments = [NSMutableDictionary new];
+            for (NSString *argument in [components subarrayWithRange:NSMakeRange(3, components.count - 3)]) {
+                NSArray *keyValuePair = [argument componentsSeparatedByString:@"="];
+                if (keyValuePair.count == 2) {
+                    [arguments setObject:keyValuePair[1] forKey:keyValuePair[0]];
                 }
-                
-                [self receivedStatusEventOfType:components.firstObject severity:components[1] action:components[2] arguments:arguments];
             }
-            break;
         }
+        
+        return block(components.firstObject, components[1], components[2], arguments);
+    }];
+}
 
-        default:
-            break;
-    }
+- (id)addObserver:(TORObserverBlock)observer {
+    NSParameterAssert(observer);
+    dispatch_async([[self class] controlQueue], ^{
+        [_blocks addObject:observer];
+    });
+    return observer;
+}
+
+- (void)removeObserver:(id)observer {
+    NSParameterAssert(observer);
+    dispatch_async([[self class] controlQueue], ^{
+        [_blocks removeObject:observer];
+    });
 }
 
 #pragma mark - Sending
 
-- (void)sendSignal:(NSString *)signal completion:(void(^)())completion {
-    NSParameterAssert(signal);
-    [self sendCommand:@"SIGNAL" arguments:@[signal] data:nil];
+- (void)authenticateWithData:(NSData *)data completion:(void (^)(BOOL success, NSString *message))completion {
+    NSMutableString *hexString = [NSMutableString new];
+    for (NSUInteger idx = 0; idx < data.length; idx++)
+        [hexString appendFormat:@"%02x", ((const unsigned char *)data.bytes)[idx]];
+    
+    [self sendCommand:@"AUTHENTICATE" arguments:(hexString.length ? @[hexString] : nil) data:nil observer:^BOOL(NSUInteger code, NSData *data, BOOL *stop) {
+        if (code != 250 && code != 515)
+            return NO;
+        
+        NSString *message = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        BOOL success = (code == 250 && [message isEqualToString:@"OK"]);
+        if (completion)
+            completion(success, success ? nil : message);
+        
+        *stop = YES;
+        return YES;
+    }];
 }
 
-- (void)sendCommand:(NSString *)command arguments:(NSArray *)arguments data:(NSData *)data {
+- (void)sendCommand:(NSString *)command arguments:(NSArray *)arguments data:(NSData *)data observer:(TORObserverBlock)observer {
     NSParameterAssert(command.length);
     if (!_channel)
         return;
@@ -266,9 +308,11 @@ static TORController *sharedController = nil;
         [commandData appendBytes:"\r\n.\r\n" length:5];
     }
     
-    dispatch_data_t dispatchData = dispatch_data_create(commandData.bytes, commandData.length, [[self class] eventQueue], DISPATCH_DATA_DESTRUCTOR_DEFAULT);
-    dispatch_io_write(_channel, 0, dispatchData, [[self class] eventQueue], ^(bool done, dispatch_data_t data, int error) {
-        
+    dispatch_data_t dispatchData = dispatch_data_create(commandData.bytes, commandData.length, [[self class] controlQueue], DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+    dispatch_io_write(_channel, 0, dispatchData, [[self class] controlQueue], ^(bool done, dispatch_data_t data, int error) {
+        if (done && !error && observer) {
+            [_blocks insertObject:observer atIndex:0];
+        }
     });
 }
 

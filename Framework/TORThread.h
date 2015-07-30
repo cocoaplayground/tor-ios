@@ -10,6 +10,8 @@
 
 @interface TORThread : NSThread
 
++ (instancetype)torThread;
+
 - (instancetype)initWithArguments:(NSArray *)arguments NS_DESIGNATED_INITIALIZER;
 
 @end
