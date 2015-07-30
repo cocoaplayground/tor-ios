@@ -34,7 +34,7 @@ do
     if [ "${ARCH}" == "x86_64" ] || [ "${ARCH}" == "arm64" ]; then
         EC_NISTP = "enable-ec_nistp_64_gcc_128"
     fi
-    ./Configure iphoneos-cross no-asm ${EC_NISTP} --openssldir="${CONFIGURATION_TEMP_DIR}/openssl-${ARCH}"
+    ./Configure iphoneos-cross ${EC_NISTP} --openssldir="${CONFIGURATION_TEMP_DIR}/openssl-${ARCH}"
     make -j$(sysctl hw.ncpu | awk '{print $2}')
     make install
     make clean
