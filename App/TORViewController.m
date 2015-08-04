@@ -7,8 +7,10 @@
 //
 
 #import <Tor/Tor.h>
+#import <NetworkExtension/NetworkExtension.h>
 
 #import "TORViewController.h"
+#import "TORSharedConstants.h"
 
 @interface TORViewController ()
 
@@ -21,13 +23,10 @@
 - (instancetype)initWithNibName:(nullable NSString *)nibNameOrNil bundle:(nullable NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        NSString *dataDirectory = NSTemporaryDirectory();
-        NSString *socksSocketPath = [dataDirectory stringByAppendingPathComponent:@"socks"];
+        
+        
+        NSString *dataDirectory = [[[NSFileManager defaultManager] containerURLForSecurityApplicationGroupIdentifier:TORAppGroupIdentifier] path];
         NSString *controlSocketPath = [dataDirectory stringByAppendingPathComponent:@"control"];
-        TORThread *thread = [[TORThread alloc] initWithDataDirectory:dataDirectory socksSocketPath:socksSocketPath controlSocketPath:controlSocketPath arguments:@[@"--CookieAuthentication", @"1"]];
-        
-        [thread start];
-        
         _controller = [[TORController alloc] initWithControlSocketPath:controlSocketPath];
         
         [_controller addObserverForCircuitEstablished:^(BOOL established) {

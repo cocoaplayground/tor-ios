@@ -1,0 +1,12 @@
+//
+//  Tor.xcconfig
+//  Tor
+//
+//  Created by Conrad Kramer on 8/3/15.
+//
+//
+
+TOR_APPLICATION_BUNDLE_IDENTIFIER = dk.conra.tor
+TOR_EXTENSION_BUNDLE_IDENTIFIER = dk.conra.tor.extension
+TOR_FRAMEWORK_BUNDLE_IDENTIIER = dk.conra.tor.framework
+TOR_APPLICATION_GROUP = group.dk.conra.tor

@@ -21,6 +21,10 @@
 		D040117A1B65E40C0087E17A /* libssl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D0616A5419160A4300B77FAE /* libssl.a */; };
 		D040117B1B65E40C0087E17A /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D0616A5519160A5700B77FAE /* libcrypto.a */; };
 		D040117C1B65E40C0087E17A /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D0FE0CC81916D7F000406A86 /* libz.dylib */; };
+		D07E60D51B709619003A2926 /* TORSharedConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E60D41B709619003A2926 /* TORSharedConstants.m */; };
+		D07E60D61B709633003A2926 /* TORSharedConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = D07E60D41B709619003A2926 /* TORSharedConstants.m */; };
+		D07E60DA1B709981003A2926 /* TorTunnel.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = D0D1FACC1B5C35F500EC7256 /* TorTunnel.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		D07E60DB1B7099B5003A2926 /* Tor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D08F64D11B65E34100452A58 /* Tor.framework */; };
 		D08F64D61B65E34100452A58 /* Tor.h in Headers */ = {isa = PBXBuildFile; fileRef = D08F64D51B65E34100452A58 /* Tor.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D08F64E81B65E34100452A58 /* Tor.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D08F64D11B65E34100452A58 /* Tor.framework */; };
 		D08F64E91B65E34100452A58 /* Tor.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D08F64D11B65E34100452A58 /* Tor.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -41,21 +45,21 @@
 			remoteGlobalIDString = D0616A671916943F00B77FAE;
 			remoteInfo = tor;
 		};
-		D08F64E61B65E34100452A58 /* PBXContainerItemProxy */ = {
+		D07E60D81B70996D003A2926 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D0D01CDC19127C53000002E7 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = D08F64D01B65E34100452A58;
-			remoteInfo = Framework;
+			remoteGlobalIDString = D0D1FACB1B5C35F500EC7256;
+			remoteInfo = Extension;
 		};
-		D0D1FAEF1B5C398300EC7256 /* PBXContainerItemProxy */ = {
+		D07E60DC1B70A44E003A2926 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D0D01CDC19127C53000002E7 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = D06711A119149DC400EEA0DA;
 			remoteInfo = libevent;
 		};
-		D0D1FAF11B5C398600EC7256 /* PBXContainerItemProxy */ = {
+		D07E60DE1B70A44E003A2926 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D0D01CDC19127C53000002E7 /* Project object */;
 			proxyType = 1;
@@ -89,6 +93,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
+				D07E60DA1B709981003A2926 /* TorTunnel.appex in Embed App Extensions */,
 			);
 			name = "Embed App Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -105,6 +110,9 @@
 		D0616A5E1916189400B77FAE /* libevent_openssl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libevent_openssl.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0616A5F1916189400B77FAE /* libevent_pthreads.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libevent_pthreads.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D0616A601916189400B77FAE /* libevent.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libevent.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D07E60D31B709619003A2926 /* TORSharedConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TORSharedConstants.h; sourceTree = "<group>"; };
+		D07E60D41B709619003A2926 /* TORSharedConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TORSharedConstants.m; sourceTree = "<group>"; };
+		D07E60D71B7097B4003A2926 /* Tor.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Tor.xcconfig; sourceTree = SOURCE_ROOT; };
 		D08F64C81B65E2EB00452A58 /* TORController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TORController.h; sourceTree = "<group>"; };
 		D08F64C91B65E2EB00452A58 /* TORController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TORController.m; sourceTree = "<group>"; };
 		D08F64CA1B65E2EB00452A58 /* TORThread.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TORThread.h; sourceTree = "<group>"; };
@@ -167,12 +175,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D07E60DB1B7099B5003A2926 /* Tor.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D023C6961B7095D400DA3B18 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				D07E60D71B7097B4003A2926 /* Tor.xcconfig */,
+				D07E60D31B709619003A2926 /* TORSharedConstants.h */,
+				D07E60D41B709619003A2926 /* TORSharedConstants.m */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
 		D08F64C71B65E26A00452A58 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
@@ -200,6 +219,7 @@
 			children = (
 				D0D01CED19127C54000002E7 /* App */,
 				D0D1FAC71B5C357400EC7256 /* Extension */,
+				D023C6961B7095D400DA3B18 /* Shared */,
 				D08F64C71B65E26A00452A58 /* Framework */,
 				D0D01CE619127C54000002E7 /* Frameworks */,
 				D0D01CE519127C54000002E7 /* Products */,
@@ -312,8 +332,8 @@
 			buildToolPath = /bin/bash;
 			buildWorkingDirectory = Framework/tor;
 			dependencies = (
-				D0D1FAF21B5C398600EC7256 /* PBXTargetDependency */,
-				D0D1FAF01B5C398300EC7256 /* PBXTargetDependency */,
+				D07E60DD1B70A44E003A2926 /* PBXTargetDependency */,
+				D07E60DF1B70A44E003A2926 /* PBXTargetDependency */,
 			);
 			name = tor;
 			passBuildSettingsInEnvironment = 1;
@@ -383,7 +403,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				D08F64E71B65E34100452A58 /* PBXTargetDependency */,
+				D07E60D91B70996D003A2926 /* PBXTargetDependency */,
 			);
 			name = Tor;
 			productName = Tor;
@@ -496,6 +516,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D07E60D51B709619003A2926 /* TORSharedConstants.m in Sources */,
 				D0D01CF819127C54000002E7 /* TORAppDelegate.m in Sources */,
 				D0D01CF419127C54000002E7 /* main.m in Sources */,
 				D0128AA21922878200AD6207 /* TORViewController.m in Sources */,
@@ -506,6 +527,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D07E60D61B709633003A2926 /* TORSharedConstants.m in Sources */,
 				D0D1FAFE1B5C573600EC7256 /* TORPacketTunnelProvider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -518,20 +540,20 @@
 			target = D0616A671916943F00B77FAE /* tor */;
 			targetProxy = D040117D1B65E4B80087E17A /* PBXContainerItemProxy */;
 		};
-		D08F64E71B65E34100452A58 /* PBXTargetDependency */ = {
+		D07E60D91B70996D003A2926 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D08F64D01B65E34100452A58 /* Framework */;
-			targetProxy = D08F64E61B65E34100452A58 /* PBXContainerItemProxy */;
+			target = D0D1FACB1B5C35F500EC7256 /* Extension */;
+			targetProxy = D07E60D81B70996D003A2926 /* PBXContainerItemProxy */;
 		};
-		D0D1FAF01B5C398300EC7256 /* PBXTargetDependency */ = {
+		D07E60DD1B70A44E003A2926 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D06711A119149DC400EEA0DA /* libevent */;
-			targetProxy = D0D1FAEF1B5C398300EC7256 /* PBXContainerItemProxy */;
+			targetProxy = D07E60DC1B70A44E003A2926 /* PBXContainerItemProxy */;
 		};
-		D0D1FAF21B5C398600EC7256 /* PBXTargetDependency */ = {
+		D07E60DF1B70A44E003A2926 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = D06711AB1914B21500EEA0DA /* openssl */;
-			targetProxy = D0D1FAF11B5C398600EC7256 /* PBXContainerItemProxy */;
+			targetProxy = D07E60DE1B70A44E003A2926 /* PBXContainerItemProxy */;
 		};
 		D0D1FAF81B5C3A4A00EC7256 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -608,6 +630,7 @@
 		D08F64EB1B65E34200452A58 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
@@ -619,14 +642,14 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
 					"$(inherited)",
+					"DEBUG=1",
 				);
 				INFOPLIST_FILE = Framework/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kramerapps.tor2.tor;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOR_FRAMEWORK_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = Tor;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -637,6 +660,7 @@
 		D08F64EC1B65E34200452A58 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
@@ -649,10 +673,10 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
 				INFOPLIST_FILE = Framework/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kramerapps.tor2.tor;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOR_FRAMEWORK_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = Tor;
 				SKIP_INSTALL = YES;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -662,6 +686,7 @@
 		};
 		D0D01D1A19127C54000002E7 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D07E60D71B7097B4003A2926 /* Tor.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -683,10 +708,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "TOR_APPLICATION_GROUP=$(TOR_APPLICATION_GROUP)";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -702,7 +724,7 @@
 					"\"$(SRCROOT)/Framework/tor\"",
 					"\"$(SRCROOT)/Framework/libevent/include\"",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -712,6 +734,7 @@
 		};
 		D0D01D1B19127C54000002E7 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = D07E60D71B7097B4003A2926 /* Tor.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -731,6 +754,7 @@
 				ENABLE_BITCODE = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "TOR_APPLICATION_GROUP=$(TOR_APPLICATION_GROUP)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -745,7 +769,7 @@
 					"\"$(SRCROOT)/Framework/tor\"",
 					"\"$(SRCROOT)/Framework/libevent/include\"",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "\"$(SRCROOT)/Framework\"";
@@ -759,10 +783,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
 				CODE_SIGN_ENTITLEMENTS = App/Tor.entitlements;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.kramerapps.tor2;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOR_APPLICATION_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -778,7 +806,7 @@
 				INFOPLIST_FILE = App/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.kramerapps.tor2;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOR_APPLICATION_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -794,11 +822,15 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
 				INFOPLIST_FILE = Extension/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kramerapps.tor2.tunnel2;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOR_EXTENSION_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = TorTunnel;
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
@@ -818,7 +850,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @executable_path/../../Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.kramerapps.tor2.tunnel2;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(TOR_EXTENSION_BUNDLE_IDENTIFIER)";
 				PRODUCT_NAME = TorTunnel;
 				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
