@@ -13,7 +13,7 @@
 - The packet tunnel provider needs to control Tor (handle going into the background, waking up, etc.)
 - The UI for configuring common Tor options and displaying Tor status.
 
-## Gettng Started
+## Getting Started
 
 ### Prerequisites
 
